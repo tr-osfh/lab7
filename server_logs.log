@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE log SYSTEM "logger.dtd">
+<log>
+<record>
+  <date>2025-05-04T15:52:58.166018800Z</date>
+  <millis>1746373978166</millis>
+  <nanos>18800</nanos>
+  <sequence>0</sequence>
+  <logger>collection.ServerLogger</logger>
+  <level>INFO</level>
+  <class>file.FileManager</class>
+  <method>loadCSV</method>
+  <thread>1</thread>
+  <message>Загружена коллекция из 3 драконов.</message>
+</record>
+<record>
+  <date>2025-05-04T15:52:58.218023400Z</date>
+  <millis>1746373978218</millis>
+  <nanos>23400</nanos>
+  <sequence>1</sequence>
+  <logger>collection.ServerLogger</logger>
+  <level>INFO</level>
+  <class>connection.Server</class>
+  <method>run</method>
+  <thread>1</thread>
+  <message>Сервер запущен на порту 21213</message>
+</record>
+<record>
+  <date>2025-05-04T15:52:59.657919600Z</date>
+  <millis>1746373979657</millis>
+  <nanos>919600</nanos>
+  <sequence>2</sequence>
+  <logger>collection.ServerLogger</logger>
+  <level>INFO</level>
+  <class>connection.Server</class>
+  <method>handleClientConnection</method>
+  <thread>1</thread>
+  <message>Подключен клиент: /192.168.56.1:52219</message>
+</record>
+<record>
+  <date>2025-05-04T15:53:02.506346700Z</date>
+  <millis>1746373982506</millis>
+  <nanos>346700</nanos>
+  <sequence>3</sequence>
+  <logger>collection.ServerLogger</logger>
+  <level>INFO</level>
+  <class>connection.Server</class>
+  <method>handleClientData</method>
+  <thread>1</thread>
+  <message>От клиента получена команда: show</message>
+</record>
+<record>
+  <date>2025-05-04T15:53:06.595634400Z</date>
+  <millis>1746373986595</millis>
+  <nanos>634400</nanos>
+  <sequence>4</sequence>
+  <logger>collection.ServerLogger</logger>
+  <level>INFO</level>
+  <class>connection.Server</class>
+  <method>handleClientData</method>
+  <thread>1</thread>
+  <message>Клиент отключился: /192.168.56.1:52219</message>
+</record>
+<record>
+  <date>2025-05-04T15:53:12.015441Z</date>
+  <millis>1746373992015</millis>
+  <nanos>441000</nanos>
+  <sequence>5</sequence>
+  <logger>collection.ServerLogger</logger>
+  <level>INFO</level>
+  <class>connection.Server</class>
+  <method>handleClientConnection</method>
+  <thread>1</thread>
+  <message>Подключен клиент: /192.168.56.1:52222</message>
+</record>
+<record>
+  <date>2025-05-04T15:53:13.744878900Z</date>
+  <millis>1746373993744</millis>
+  <nanos>878900</nanos>
+  <sequence>6</sequence>
+  <logger>collection.ServerLogger</logger>
+  <level>INFO</level>
+  <class>connection.Server</class>
+  <method>handleClientData</method>
+  <thread>1</thread>
+  <message>От клиента получена команда: show</message>
+</record>
+<record>
+  <date>2025-05-04T15:53:45.160047900Z</date>
+  <millis>1746374025160</millis>
+  <nanos>47900</nanos>
+  <sequence>7</sequence>
+  <logger>collection.ServerLogger</logger>
+  <level>INFO</level>
+  <class>connection.Server</class>
+  <method>handleClientData</method>
+  <thread>1</thread>
+  <message>Клиент отключился: /192.168.56.1:52222</message>
+</record>
+<record>
+  <date>2025-05-04T15:53:52.070878500Z</date>
+  <millis>1746374032070</millis>
+  <nanos>878500</nanos>
+  <sequence>8</sequence>
+  <logger>collection.ServerLogger</logger>
+  <level>INFO</level>
+  <class>connection.Server</class>
+  <method>handleClientConnection</method>
+  <thread>1</thread>
+  <message>Подключен клиент: /192.168.56.1:52228</message>
+</record>
+<record>
+  <date>2025-05-04T15:53:54.787016100Z</date>
+  <millis>1746374034787</millis>
+  <nanos>16100</nanos>
+  <sequence>9</sequence>
+  <logger>collection.ServerLogger</logger>
+  <level>INFO</level>
+  <class>connection.Server</class>
+  <method>handleClientData</method>
+  <thread>1</thread>
+  <message>От клиента получена команда: show</message>
+</record>
+<record>
+  <date>2025-05-04T15:53:58.119828Z</date>
+  <millis>1746374038119</millis>
+  <nanos>828000</nanos>
+  <sequence>10</sequence>
+  <logger>collection.ServerLogger</logger>
+  <level>INFO</level>
+  <class>connection.Server</class>
+  <method>handleClientData</method>
+  <thread>1</thread>
+  <message>Клиент отключился: /192.168.56.1:52228</message>
+</record>
+</log>
