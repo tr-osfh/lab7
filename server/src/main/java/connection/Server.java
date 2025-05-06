@@ -14,6 +14,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeUnit;
 
 public class Server {
     private final ConsoleManager consoleManager;
@@ -21,9 +25,9 @@ public class Server {
     private final FileManager fm;
     private volatile boolean running = true;
     private ServerSocket serverSocket;
-    private Socket clientSocket;
-    private InputStream clientInput;
-    private OutputStream clientOutput;
+
+    private final ForkJoinPool readPool = new ForkJoinPool();
+    private final ExecutorService responsePool = Executors.newCachedThreadPool();
 
     public Server(int port, FileManager fileManager, ConsoleManager consoleManager) {
         this.port = port;
@@ -37,11 +41,15 @@ public class Server {
             serverSocket.setSoTimeout(100);
             ServerLogger.getLogger().info("Сервер запущен на порту " + port);
 
-            while (running) {
-                checkConsoleInput();
-                handleClientConnection();
-                handleClientData();
-            }
+            readPool.execute(() -> {
+                while (running) {
+                    handleClientConnection();
+                    checkConsoleInput();
+                }
+                System.exit(0);
+            });
+
+            readPool.awaitQuiescence(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
         } catch (IOException e) {
             ServerLogger.getLogger().severe("Ошибка в работе сервера");
         } finally {
@@ -49,43 +57,52 @@ public class Server {
         }
     }
 
-    private void handleClientConnection() throws IOException {
+    private void handleClientConnection() {
         try {
-            if (clientSocket == null || clientSocket.isClosed()) {
-                clientSocket = serverSocket.accept();
-                clientSocket.setSoTimeout(100);
-                clientInput = clientSocket.getInputStream();
-                clientOutput = clientSocket.getOutputStream();
-                ServerLogger.getLogger().info("Подключен клиент: " + clientSocket.getRemoteSocketAddress());
-            }
-        } catch (SocketTimeoutException ignored) {
-        }
-    }
+            Socket clientSocket = serverSocket.accept();
+            ServerLogger.getLogger().info("Подключен клиент: " + clientSocket.getRemoteSocketAddress());
 
-    private void handleClientData() {
-        if (clientSocket != null && !clientSocket.isClosed()) {
-            try {
-                byte[] buffer = new byte[4096];
-                int bytesRead = clientInput.read(buffer);
+            readPool.execute(() -> {
+                try (
+                        InputStream input = clientSocket.getInputStream();
+                        OutputStream output = clientSocket.getOutputStream()
+                ) {
+                    byte[] buffer = new byte[4096];
+                    int bytesRead;
+                    while ((bytesRead = input.read(buffer)) != -1) {
+                        final byte[] requestData = Arrays.copyOf(buffer, bytesRead);
 
-                if (bytesRead == -1) {
+                        new Thread(() -> {
+                            try {
+                                Command command = CommandSerializer.deserialize(requestData);
+                                ServerLogger.getLogger().info("Получена команда: " + command.getCommandName());
+                                Response response = command.execute();
+
+                                responsePool.execute(() -> {
+                                    try {
+                                        output.write(CommandSerializer.serialize(response));
+                                        output.flush();
+                                    } catch (IOException e) {
+                                        ServerLogger.getLogger().warning("Ошибка отправки ответа");
+                                    }
+                                });
+                            } catch (ClassNotFoundException | IOException e) {
+                                ServerLogger.getLogger().warning("Ошибка обработки команды");
+                            }
+                        }).start();
+
+                        Arrays.fill(buffer, (byte) 0);
+                    }
+                } catch (IOException e) {
+                    ServerLogger.getLogger().warning("Ошибка клиента");
+                } finally {
                     ServerLogger.getLogger().info("Клиент отключился: " + clientSocket.getRemoteSocketAddress());
-                    closeClientResources();
-                    return;
+                    closeClientResources(clientSocket);
                 }
-
-                if (bytesRead > 0) {
-                    Command command = CommandSerializer.deserialize(Arrays.copyOf(buffer, bytesRead));
-                    ServerLogger.getLogger().info("От клиента получена команда: " + command.getCommandName());
-                    Response response = command.execute();
-                    clientOutput.write(CommandSerializer.serialize(response));
-                    clientOutput.flush();
-                }
-            } catch (SocketTimeoutException e) {
-            } catch (IOException | ClassNotFoundException e) {
-                ServerLogger.getLogger().info("Клиент отключился: Ошибка обработки");
-                closeClientResources();
-            }
+            });
+        } catch (SocketTimeoutException ignored) {
+        } catch (IOException e) {
+            ServerLogger.getLogger().warning("Ошибка подключения");
         }
     }
 
@@ -110,29 +127,28 @@ public class Server {
         }
     }
 
-    private void closeClientResources() {
+    private void closeClientResources(Socket clientSocket) {
         try {
             if (clientSocket != null && !clientSocket.isClosed()) {
                 clientSocket.close();
+                ServerLogger.getLogger().warning("Клиент отключился");
             }
         } catch (IOException e) {
-            ServerLogger.getLogger().warning("Ошибка закрытия клиентского соединения");
-        } finally {
-            clientSocket = null;
-            clientInput = null;
-            clientOutput = null;
+            ServerLogger.getLogger().warning("Ошибка закрытия клиента");
         }
     }
 
     private void closeResources() {
         try {
             running = false;
+            readPool.shutdownNow();
+            responsePool.shutdownNow();
             if (serverSocket != null && !serverSocket.isClosed()) {
                 serverSocket.close();
+                ServerLogger.getLogger().info("Сервер остановлен");
             }
-            closeClientResources();
         } catch (IOException e) {
-            ServerLogger.getLogger().warning("Ошибка закрытия ресурсов");
+            ServerLogger.getLogger().warning("Ошибка закрытия сервера");
         }
     }
 }

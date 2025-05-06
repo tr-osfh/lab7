@@ -6,8 +6,10 @@ import commands.ExecuteScriptCommand;
 import console.*;
 import file.ExecuteScript;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -49,6 +51,7 @@ public class Client {
             } catch (IOException e) {
                 try {
                     noConnectionHandler();
+
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
@@ -116,7 +119,8 @@ public class Client {
     private void processConsoleInput() {
         if (isConnected && !isWaitingForResponse) {
             try {
-                if (System.in.available() > 0) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+                if (reader.ready()) {
                     Command cmd = readCommand();
                     if (cmd != null) {
                         pendingCommand = cmd;
@@ -134,13 +138,14 @@ public class Client {
 
     private void successConnect(SelectionKey key) throws IOException {
         SocketChannel channel = (SocketChannel) key.channel();
-        if (channel.finishConnect()) {
-            channel.register(selector, SelectionKey.OP_READ);
-            cr.printLine("Подключено к серверу. \n");
-            cr.printLine("Введите команду: \n");
-            isConnected = true;
-            connectionProblem = false;
+        if (channel.isConnectionPending()) {
+            channel.finishConnect();
         }
+        channel.register(selector, SelectionKey.OP_READ);
+        cr.printLine("Подключено к серверу. \n");
+        cr.printLine("Введите команду: \n");
+        isConnected = true;
+        connectionProblem = false;
     }
 
     private void read(SelectionKey key) throws IOException, ClassNotFoundException {
