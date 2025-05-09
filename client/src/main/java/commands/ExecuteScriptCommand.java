@@ -2,6 +2,7 @@ package commands;
 
 
 import connection.Response;
+import connection.User;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -15,9 +16,11 @@ public class ExecuteScriptCommand implements Command, Serializable {
     @Serial
     private final static long serialVersionUID  = 5L;
     private final ArrayList<Command> commandStack;
+    private User user;
 
-    public ExecuteScriptCommand(ArrayList<Command> commandStack) {
+    public ExecuteScriptCommand(ArrayList<Command> commandStack, User user) {
         this.commandStack = commandStack;
+        this.user = user;
     }
     @Override
     public Response execute() {
@@ -27,5 +30,9 @@ public class ExecuteScriptCommand implements Command, Serializable {
     @Override
     public String getDescription() {
         return "execute_script file_path : считать и исполнить скрипт из указанного файла. Поддерживает команды с объектами.";
+    }
+    @Override
+    public String getCommandName() {
+        return "execute_script";
     }
 }

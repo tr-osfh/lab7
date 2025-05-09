@@ -1,6 +1,7 @@
 package commands;
 
 public class CommandsList {
+
     public enum CommandType {
         HELP(HelpCommand.class, "help : вывести справку по доступным командам"),
         INFO(InfoCommand.class, "info : вывести в стандартный поток вывода информацию о коллекции (тип, дата инициализации, количество элементов и т.д.)"),
@@ -17,6 +18,8 @@ public class CommandsList {
         SUM_OF_AGE(SumOfAgeCommand.class, "sum_of_age : вывести сумму значений поля age для всех элементов коллекции"),
         FILTER_CONTAINS_NAME(FilterContainsNameCommand.class, "filter_contains_name name : вывести элементы, значение поля name которых содержит заданную подстроку"),
         FILTER_STARTS_WITH_NAME(FilterStartsWithNameCommand.class, "filter_starts_with_name name : вывести элементы, значение поля name которых начинается с заданной подстроки"),
+        REGISTRATION(RegistrationCommand.class, "registration : создать аккаунт."),
+        AUTHORIZATION(AuthorizationCommand.class, "authorization : войти в существующий аккаунт."),
         DEFAULT(DefaultCommand.class, "");
 
 

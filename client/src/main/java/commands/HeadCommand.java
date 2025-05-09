@@ -2,6 +2,7 @@ package commands;
 
 
 import connection.Response;
+import connection.User;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -16,8 +17,9 @@ public class HeadCommand implements Command, Serializable {
     @Serial
     private static final long serialVersionUID  = 9L;
 
-    public HeadCommand() {
-
+    private User user;
+    public HeadCommand(User user) {
+        this.user = user;
     }
 
     @Override
@@ -28,5 +30,10 @@ public class HeadCommand implements Command, Serializable {
     @Override
     public String getDescription() {
         return "head : вывести первый элемент коллекции";
+    }
+
+    @Override
+    public String getCommandName() {
+        return "head";
     }
 }

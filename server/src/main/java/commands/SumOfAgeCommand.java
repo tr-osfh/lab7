@@ -2,8 +2,10 @@ package commands;
 
 
 import collection.CollectionManager;
+import connection.CommandResponse;
 import connection.Response;
 import connection.ResponseStatus;
+import connection.User;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -15,13 +17,18 @@ import java.io.Serializable;
 public class SumOfAgeCommand implements Command, Serializable {
     @Serial
     private final static long serialVersionUID  = 15L;
+    private User user;
+    public SumOfAgeCommand(User user){
+        this.user = user;
+    }
 
-    public SumOfAgeCommand(){
+    public User getUser() {
+        return user;
     }
 
     @Override
     public Response execute() {
-        return new Response(ResponseStatus.OK, CollectionManager.sumOfAge());
+        return new Response(ResponseStatus.OK, CollectionManager.sumOfAge(), CommandResponse.SUM_OF_AGE);
     }
 
     @Override

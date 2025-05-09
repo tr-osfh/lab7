@@ -28,4 +28,9 @@ public class ExitCommand implements Command, Serializable {
     public String getDescription() {
         return "exit : завершить программу (без сохранения в файл)";
     }
+
+    @Override
+    public String getCommandName() {
+        return "exit";
+    }
 }

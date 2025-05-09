@@ -1,6 +1,11 @@
 package file;
 
+import collection.ServerLogger;
 import seClasses.*;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.concurrent.PriorityBlockingQueue;
 
 /**
  * Класс Parser отвечает за преобразование объектов Dragon в строки и обратно.
@@ -8,117 +13,69 @@ import seClasses.*;
  */
 public class Parser {
 
-    /**
-     * Преобразует объект Dragon в строку в формате CSV.
-     * @param dragon Объект Dragon для преобразования.
-     * @return Строка в формате CSV, представляющая объект Dragon.
-     */
-    public String parseDragonToLine(Dragon dragon) {
-        String dragonLine;
-        if (dragon.getKiller() != null) {
-            dragonLine = dragon.getId() + "," +
-                    dragon.getName() + "," +
-                    dragon.getCoordinates().getX() + "," +
-                    dragon.getCoordinates().getY() + "," +
-                    dragon.getAge() + "," +
-                    dragon.getDescription() + "," +
-                    dragon.getWeight() + "," +
-                    dragon.getType() + "," +
-                    dragon.getKiller().getPassportID() + "," +
-                    dragon.getKiller().getName() + "," +
-                    dragon.getKiller().getEyeColor() + "," +
-                    dragon.getKiller().getHairColor() + "," +
-                    dragon.getKiller().getLocation().getX() + "," +
-                    dragon.getKiller().getLocation().getY() + "," +
-                    dragon.getKiller().getLocation().getZ() + "," +
-                    dragon.getKiller().getLocation().getName();
-        } else {
-            dragonLine = dragon.getId() + "," +
-                    dragon.getName() + "," +
-                    dragon.getCoordinates().getX() + "," +
-                    dragon.getCoordinates().getY() + "," +
-                    dragon.getAge() + "," +
-                    dragon.getDescription() + "," +
-                    dragon.getWeight() + "," +
-                    dragon.getType();
-        }
-        return dragonLine;
-    }
-
-    /**
-     * Преобразует строку в формате CSV в объект Dragon.
-     * @param line Строка в формате CSV, представляющая объект Dragon.
-     * @return Объект Dragon, созданный из строки.
-     * @throws RuntimeException Если строка содержит невалидные значения.
-     */
-    public Dragon parseLineToDragon(String line) {
-        String[] values = line.split(",");
-        Dragon res;
+    public PriorityBlockingQueue<Dragon> ParseDbToDragons(ResultSet resultSet) {
+        PriorityBlockingQueue<Dragon> dragons = new PriorityBlockingQueue<>();
         try {
-            if (values.length == 16) {
-                long id = Long.parseLong(values[0]);
-                String name = values[1];
+            while (resultSet.next()) {
+                Location killerLocation = new Location(
+                        resultSet.getInt("killer_location_x"),
+                        resultSet.getInt("killer_location_y"),
+                        resultSet.getDouble("killer_location_z"),
+                        resultSet.getString("killer_location_name")
+                );
 
-                Float coordinateX = Float.valueOf(values[2]);
-                Integer coordinateY = Integer.valueOf(values[3]);
+                Person killer = null;
+                if (resultSet.getObject("killer_id") != null) {
+                    String hairColorStr = resultSet.getString("killer_hair_color");
+                    NaturalColor hairColor = (hairColorStr != null)
+                            ? NaturalColor.valueOf(hairColorStr)
+                            : null;
 
-                Long age = Long.valueOf(values[4]);
-                String description = values[5];
-                Long weight = Long.valueOf(values[6]);
-                DragonType type = DragonType.valueOf(values[7]);
+                    killer = new Person(
+                            resultSet.getString("killer_name"),
+                            resultSet.getString("killer_passport"),
+                            BrightColor.valueOf(resultSet.getString("killer_eye_color")),
+                            hairColor,
+                            killerLocation
+                    );
+                }
 
-                String killerId = values[8];
-                String killerName = values[9];
-                BrightColor killerEyeColor = BrightColor.valueOf(values[10]);
-                NaturalColor killerHairColor = NaturalColor.valueOf(values[11]);
+                Long age = resultSet.getObject("dragon_age", Long.class);
+                Long weight = resultSet.getObject("dragon_weight", Long.class);
 
-                int locationX = Integer.parseInt(values[12]);
-                Integer locationY = Integer.valueOf(values[13]);
-                double locationZ = Double.parseDouble(values[14]);
-                String locationName = values[15];
+                DragonType type = null;
+                String typeStr = resultSet.getString("dragon_type");
+                if (typeStr != null) {
+                    try {
+                        type = DragonType.valueOf(typeStr);
+                    } catch (IllegalArgumentException e) {
+                        ServerLogger.getLogger().warning("Неизвестный тип дракона: " + typeStr);
+                    }
+                }
 
                 Dragon dragon = new Dragon(
-                        name,
-                        new Coordinates(coordinateX, coordinateY),
+                        resultSet.getLong("dragon_id"),
+                        resultSet.getString("dragon_name"),
+                        new Coordinates(
+                                resultSet.getFloat("dragon_x"),
+                                resultSet.getInt("dragon_y")
+                        ),
+                        resultSet.getTimestamp("dragon_creation_time").toLocalDateTime(),
                         age,
-                        description,
+                        resultSet.getString("dragon_description"),
                         weight,
                         type,
-                        new Person(killerName, killerId, killerEyeColor, killerHairColor, new Location(locationX, locationY, locationZ, locationName))
+                        killer,
+                        resultSet.getString("dragon_owner")
                 );
-                dragon.setId(id);
-                dragon.getKiller().setPassportID(killerId);
 
-                res = dragon;
-            } else if (values.length == 8) {
-                long id = Long.parseLong(values[0]);
-                String name = values[1];
+                dragons.add(dragon);
 
-                Float coordinateX = Float.valueOf(values[2]);
-                Integer coordinateY = Integer.valueOf(values[3]);
-
-                Long age = (values[4] == null ? null : Long.valueOf(values[4]));
-                String description = values[5];
-                Long weight = (values[6] == null ? null : Long.valueOf(values[6]));
-                DragonType type = DragonType.valueOf(values[7]);
-
-                Dragon dragon = new Dragon(
-                        name,
-                        new Coordinates(coordinateX, coordinateY),
-                        age,
-                        description,
-                        weight,
-                        type
-                );
-                dragon.setId(id);
-
-                res = dragon;
-            } else {
-                throw new RuntimeException("В файле невалидные значения.");
             }
-            return res;
-        } catch (Exception e) {
-            throw new RuntimeException("В файле невалидные значения.");
+        } catch (SQLException e){
+            ServerLogger.getLogger().warning("Ошибка парсинга.");
         }
+        return dragons;
+
     }
 }

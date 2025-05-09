@@ -2,8 +2,10 @@ package commands;
 
 
 import collection.CollectionManager;
+import connection.CommandResponse;
 import connection.Response;
 import connection.ResponseStatus;
+import connection.User;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -17,8 +19,15 @@ import java.util.stream.Collectors;
 public class HelpCommand implements Command, Serializable {
     @Serial
     private final static long serialVersionUID  = 10L;
-    public HelpCommand() {
 
+    private User user;
+    public HelpCommand(User user) {
+        this.user = user;
+
+    }
+
+    public User getUser() {
+        return user;
     }
 
     @Override
@@ -28,7 +37,7 @@ public class HelpCommand implements Command, Serializable {
                 Arrays.stream(CommandsList.CommandType.values())
                         .map(CommandsList.CommandType::getDescription)
                         .filter(description -> !description.isEmpty())
-                        .collect(Collectors.joining("\n"))
+                        .collect(Collectors.joining("\n")), CommandResponse.HELP
         );
     }
     /**

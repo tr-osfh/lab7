@@ -1,6 +1,8 @@
 package seClasses;
 
 
+import connection.User;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -25,6 +27,8 @@ public class Dragon implements Comparable<Dragon>, Serializable {
     private DragonType type; // Тип дракона, не может быть null
     private Person killer; // Убийца дракона, может быть null
 
+    private String userLogin;
+
     /**
      * Конструктор для создания объекта Dragon с убийцей.
      * @param name Имя дракона.
@@ -43,7 +47,8 @@ public class Dragon implements Comparable<Dragon>, Serializable {
             String description,
             Long weight,
             DragonType type,
-            Person killer
+            Person killer,
+            String userLogin
     ) {
         if (name == null || name.isEmpty() || coordinates == null || (age != null && age <= 0) || (weight !=null && weight <= 0) || type == null) {
             throw new IllegalArgumentException("Введенная информация содержит недопустимые значения.");
@@ -55,6 +60,8 @@ public class Dragon implements Comparable<Dragon>, Serializable {
             this.weight = weight;
             this.type = type;
             this.killer = killer;
+            this.userLogin = userLogin;
+
         }
     }
 
@@ -74,7 +81,8 @@ public class Dragon implements Comparable<Dragon>, Serializable {
             Long age,
             String description,
             Long weight,
-            DragonType type
+            DragonType type,
+            String userLogin
     ) {
         if (name == null || name.isEmpty() || (weight != null && weight <= 0) || coordinates == null || (age != null && age <= 0) || type == null) {
             throw new IllegalArgumentException("В исходном файле ошибка.");
@@ -85,6 +93,7 @@ public class Dragon implements Comparable<Dragon>, Serializable {
             this.description = description;
             this.weight = weight;
             this.type = type;
+            this.userLogin = userLogin;
         }
     }
 
@@ -231,6 +240,16 @@ public class Dragon implements Comparable<Dragon>, Serializable {
     public void setKiller(Person killer) {
         this.killer = killer;
     }
+
+
+    public String getUserLogin() {
+        return userLogin;
+    }
+
+    public void setUserLogin(String userLogin) {
+        this.userLogin = userLogin;
+    }
+
 
     /**
      * Сравнивает текущий объект с другим объектом на равенство.

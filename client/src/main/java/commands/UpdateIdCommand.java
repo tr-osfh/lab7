@@ -2,6 +2,7 @@ package commands;
 
 
 import connection.Response;
+import connection.User;
 import seClasses.Dragon;
 
 import java.io.Serial;
@@ -18,10 +19,12 @@ public class UpdateIdCommand implements Command, Serializable {
 
     private Long id;
     private Dragon dragon;
+    private User user;
 
-    public UpdateIdCommand(Long id, Dragon dragon) {
+    public UpdateIdCommand(Long id, Dragon dragon, User user) {
         this.id = id;
         this.dragon = dragon;
+        this.user = user;
     }
 
     @Override
@@ -32,5 +35,10 @@ public class UpdateIdCommand implements Command, Serializable {
     @Override
     public String getDescription(){
         return "update id {element} : обновить значение элемента коллекции, id которого равен заданному";
+    }
+
+    @Override
+    public String getCommandName() {
+        return "update";
     }
 }

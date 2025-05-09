@@ -2,6 +2,7 @@
 package file;
 
 import commands.*;
+import connection.User;
 import console.CommandDecoder;
 import console.CommandFactoryScript;
 import objectsCreation.CreateDragonFromScr;
@@ -17,9 +18,11 @@ public class ExecuteScript {
     private final ArrayList<Command> commandQueue = new ArrayList<>();
     private final File scriptFile;
     private final ArrayDeque<File> fileMemory = new ArrayDeque<>();
+    private final User user;
 
-    public ExecuteScript(File scriptFile){
+    public ExecuteScript(File scriptFile, User user){
         this.scriptFile = scriptFile;
+        this.user = user;
     }
 
     public ArrayList<Command> getCommandQueue(){
@@ -49,42 +52,42 @@ public class ExecuteScript {
             } else if (Set.of(CommandsList.ADD, CommandsList.ADD_IF_MIN, CommandsList.REMOVE_LOWER).contains(cmd)) {
                 if (lines.size() >= lineIndex + 8 && Objects.equals(lines.get(lineIndex + 8), "n")) {
                     String[] DragonFields = lines.subList(lineIndex + 1, lineIndex + 9).toArray(new String[0]);
-                    Dragon dragon = CreateDragonFromScr.createDragon(DragonFields);
+                    Dragon dragon = CreateDragonFromScr.createDragon(DragonFields, user);
                     if (cmd.equals(CommandsList.ADD)) {
-                        command = new AddCommand(dragon);
+                        command = new AddCommand(dragon, user);
                     } else if (cmd.equals(CommandsList.REMOVE_LOWER)) {
-                        command = new RemoveLowerCommand(dragon);
+                        command = new RemoveLowerCommand(dragon, user);
                     } else {
-                        command = new AddIfMinCommand(dragon);
+                        command = new AddIfMinCommand(dragon, user);
                     }
                     lineIndex += 8;
                 }else if (lines.size() >= lineIndex + 16 && Objects.equals(lines.get(lineIndex + 8), "y")) {
                     String[] DragonFields = lines.subList(lineIndex + 1, lineIndex + 17).toArray(new String[0]);
-                    Dragon dragon = CreateDragonFromScr.createDragon(DragonFields);
+                    Dragon dragon = CreateDragonFromScr.createDragon(DragonFields, user);
                     if (cmd.equals(CommandsList.ADD)) {
-                        command = new AddCommand(dragon);
+                        command = new AddCommand(dragon, user);
                     } else if (cmd.equals(CommandsList.REMOVE_LOWER)) {
-                        command = new RemoveLowerCommand(dragon);
+                        command = new RemoveLowerCommand(dragon, user);
                     } else {
-                        command = new AddIfMinCommand(dragon);
+                        command = new AddIfMinCommand(dragon, user);
                     }
                     lineIndex += 16;
                     }
             } else if (cmd.equals(CommandsList.UPDATE)) {
                 if (lines.size() >= lineIndex + 8 && Objects.equals(lines.get(lineIndex + 8), "n")) {
                     String[] DragonFields = lines.subList(lineIndex + 1, lineIndex + 9).toArray(new String[0]);
-                    Dragon dragon = CreateDragonFromScr.createDragon(DragonFields);
-                    command = new UpdateIdCommand(Long.parseLong(line[1]), dragon);
+                    Dragon dragon = CreateDragonFromScr.createDragon(DragonFields, user);
+                    command = new UpdateIdCommand(Long.parseLong(line[1]), dragon, user);
                     lineIndex += 8;
                 }else if (lines.size() >= lineIndex + 16 && Objects.equals(lines.get(lineIndex + 8), "y")) {
                     String[] DragonFields = lines.subList(lineIndex + 1, lineIndex + 17).toArray(new String[0]);
-                    Dragon dragon = CreateDragonFromScr.createDragon(DragonFields);
-                    command = new UpdateIdCommand(Long.parseLong(line[1]), dragon);
+                    Dragon dragon = CreateDragonFromScr.createDragon(DragonFields, user);
+                    command = new UpdateIdCommand(Long.parseLong(line[1]), dragon, user);
                     lineIndex += 16;
                 }
 
             } else {
-                command = CommandFactoryScript.createCommand(cmd, line);
+                command = CommandFactoryScript.createCommand(cmd, line, user);
             }
             if (command != null){
                 commandQueue.add(command);

@@ -2,9 +2,9 @@
 <!DOCTYPE log SYSTEM "logger.dtd">
 <log>
 <record>
-  <date>2025-05-06T10:58:06.191249800Z</date>
-  <millis>1746529086191</millis>
-  <nanos>249800</nanos>
+  <date>2025-05-07T13:42:28.276877900Z</date>
+  <millis>1746625348276</millis>
+  <nanos>877900</nanos>
   <sequence>0</sequence>
   <logger>collection.ServerLogger</logger>
   <level>INFO</level>
@@ -14,9 +14,9 @@
   <message>Загружена коллекция из 3 драконов.</message>
 </record>
 <record>
-  <date>2025-05-06T10:58:06.264260600Z</date>
-  <millis>1746529086264</millis>
-  <nanos>260600</nanos>
+  <date>2025-05-07T13:42:28.358884900Z</date>
+  <millis>1746625348358</millis>
+  <nanos>884900</nanos>
   <sequence>1</sequence>
   <logger>collection.ServerLogger</logger>
   <level>INFO</level>
@@ -25,27 +25,4 @@
   <thread>1</thread>
   <message>Сервер запущен на порту 21213</message>
 </record>
-<record>
-  <date>2025-05-06T10:58:08.953856900Z</date>
-  <millis>1746529088953</millis>
-  <nanos>856900</nanos>
-  <sequence>2</sequence>
-  <logger>collection.ServerLogger</logger>
-  <level>INFO</level>
-  <class>connection.Server</class>
-  <method>handleClientConnection</method>
-  <thread>1</thread>
-  <message>Подключен клиент: /192.168.56.1:62964</message>
-</record>
-<record>
-  <date>2025-05-06T10:58:10.400336700Z</date>
-  <millis>1746529090400</millis>
-  <nanos>336700</nanos>
-  <sequence>3</sequence>
-  <logger>collection.ServerLogger</logger>
-  <level>INFO</level>
-  <class>connection.Server</class>
-  <method>lambda$handleClientConnection$3</method>
-  <thread>17</thread>
-  <message>Клиент отключился: /192.168.56.1:62964</message>
-</record>
+</log>

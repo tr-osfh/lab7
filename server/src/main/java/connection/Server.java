@@ -5,7 +5,6 @@ import collection.ServerLogger;
 import commands.Command;
 import commands.CommandSerializer;
 import console.ConsoleManager;
-import file.FileManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,16 +21,14 @@ import java.util.concurrent.TimeUnit;
 public class Server {
     private final ConsoleManager consoleManager;
     private final int port;
-    private final FileManager fm;
     private volatile boolean running = true;
     private ServerSocket serverSocket;
 
     private final ForkJoinPool readPool = new ForkJoinPool();
     private final ExecutorService responsePool = Executors.newCachedThreadPool();
 
-    public Server(int port, FileManager fileManager, ConsoleManager consoleManager) {
+    public Server(int port, ConsoleManager consoleManager) {
         this.port = port;
-        this.fm = fileManager;
         this.consoleManager = consoleManager;
     }
 
@@ -67,7 +64,7 @@ public class Server {
                         InputStream input = clientSocket.getInputStream();
                         OutputStream output = clientSocket.getOutputStream()
                 ) {
-                    byte[] buffer = new byte[4096];
+                    byte[] buffer = new byte[8196 * 8196];
                     int bytesRead;
                     while ((bytesRead = input.read(buffer)) != -1) {
                         final byte[] requestData = Arrays.copyOf(buffer, bytesRead);
@@ -75,7 +72,7 @@ public class Server {
                         new Thread(() -> {
                             try {
                                 Command command = CommandSerializer.deserialize(requestData);
-                                ServerLogger.getLogger().info("Получена команда: " + command.getCommandName());
+                                ServerLogger.getLogger().info("Получена команда: " + command.getCommandName() + "\nОт пользователя: " + command.getUser());
                                 Response response = command.execute();
 
                                 responsePool.execute(() -> {
@@ -112,11 +109,7 @@ public class Server {
                 String line = consoleManager.read().trim().toLowerCase();
                 switch (line) {
                     case "exit":
-                        fm.saveCSV(CollectionManager.getDragons());
                         running = false;
-                        break;
-                    case "save":
-                        fm.saveCSV(CollectionManager.getDragons());
                         break;
                     default:
                         consoleManager.write("Доступны только команды save, exit");

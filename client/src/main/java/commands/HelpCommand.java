@@ -2,6 +2,7 @@ package commands;
 
 
 import connection.Response;
+import connection.User;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -15,7 +16,9 @@ public class HelpCommand implements Command, Serializable {
     @Serial
     private static final long serialVersionUID  = 10L;
 
-    public HelpCommand() {
+    private User user;
+    public HelpCommand(User user) {
+        this.user = user;
 
     }
 
@@ -31,5 +34,10 @@ public class HelpCommand implements Command, Serializable {
     @Override
     public String getDescription() {
         return "help : вывести справку по доступным командам";
+    }
+
+    @Override
+    public String getCommandName() {
+        return "help";
     }
 }

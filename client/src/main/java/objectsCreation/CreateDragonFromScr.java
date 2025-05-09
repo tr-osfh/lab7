@@ -1,10 +1,11 @@
 package objectsCreation;
 
+import connection.User;
 import seClasses.*;
 
 public class CreateDragonFromScr {
 
-    public static Dragon createDragon(String[] fields){
+    public static Dragon createDragon(String[] fields, User user){
         if (fields.length == 16){
             String name = fields[0];
             Coordinates cords = new Coordinates(Float.parseFloat(fields[1]), Integer.parseInt(fields[2]));
@@ -27,7 +28,19 @@ public class CreateDragonFromScr {
                     description,
                     weight,
                     type,
-                    new Person(personName, passportId, eyeColor, hairColor,new Location(x,y,z,locName))
+                    new Person(
+                            personName,
+                            passportId,
+                            eyeColor,
+                            hairColor,
+                            new Location(
+                                    x,
+                                    y,
+                                    z,
+                                    locName
+                            )
+                    ),
+                    user.getLogin()
             );
         } else if (fields.length == 8) {
             String name = fields[0];
@@ -42,7 +55,8 @@ public class CreateDragonFromScr {
                     age,
                     description,
                     weight,
-                    type
+                    type,
+                    user.getLogin()
             );
         }
         else {

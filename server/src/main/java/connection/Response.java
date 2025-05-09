@@ -16,21 +16,39 @@ public class Response implements Serializable {
     private ResponseStatus responseStatus;
     private String response = "";
     private Collection<Dragon> collection;
+    private CommandResponse type;
+    private User user;
+
     public Response(){}
 
-    public Response(ResponseStatus status){
+
+    public Response(ResponseStatus status, String response, CommandResponse type, User user){
+        this.type = type;
+        this.responseStatus = status;
+        this.response = response;
+        this.user = user;
+    }
+
+    public Response(ResponseStatus status, CommandResponse type){
+        this.type = type;
         this.responseStatus = status;
     }
 
-    public Response(ResponseStatus status, String response){
+    public Response(ResponseStatus status, String response, CommandResponse type){
         this.response = response;
         this.responseStatus = status;
+        this.type = type;
     }
 
-    public Response(ResponseStatus status, String response, Collection<Dragon> collection){
+    public Response(ResponseStatus status, String response, Collection<Dragon> collection, CommandResponse type){
         this.response = response;
         this.responseStatus = status;
         this.collection = collection.stream().sorted(Comparator.comparing(Dragon::getName)).toList();
+        this.type = type;
+    }
+
+    public CommandResponse getType() {
+        return type;
     }
 
     public ResponseStatus getResponseStatus(){
@@ -39,6 +57,10 @@ public class Response implements Serializable {
 
     public String getResponse(){
         return response;
+    }
+
+    public User getUser() {
+        return user;
     }
 
     public Collection<Dragon> getCollection(){
@@ -52,8 +74,8 @@ public class Response implements Serializable {
         Response response1 = (Response) object;
         return
                 responseStatus == response1.responseStatus &&
-                Objects.equals(response, response1.response) &&
-                Objects.equals(collection, response1.collection);
+                        Objects.equals(response, response1.response) &&
+                        Objects.equals(collection, response1.collection);
     }
 
     @Override

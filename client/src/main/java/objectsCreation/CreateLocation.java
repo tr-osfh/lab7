@@ -21,7 +21,7 @@ public class CreateLocation extends Creation<Location>{
                 consoleReader.readLocationX(),
                 consoleReader.readLocationY(),
                 consoleReader.readLocationZ(),
-                consoleReader.readName()
+                consoleReader.readLocationName()
         );
     }
 }

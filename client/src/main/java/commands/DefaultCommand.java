@@ -19,4 +19,8 @@ public class DefaultCommand implements Command, Serializable {
     public String getDescription() {
         return "";
     }
+    @Override
+    public String getCommandName() {
+        return "";
+    }
 }

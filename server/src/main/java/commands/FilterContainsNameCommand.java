@@ -2,8 +2,10 @@ package commands;
 
 
 import collection.CollectionManager;
+import connection.CommandResponse;
 import connection.Response;
 import connection.ResponseStatus;
+import connection.User;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -19,13 +21,19 @@ public class FilterContainsNameCommand implements Command, Serializable {
 
     private String namePart;
 
-    public FilterContainsNameCommand(String namePart){
+    private User user;
+    public FilterContainsNameCommand(String namePart, User user){
         this.namePart = namePart;
+        this.user = user;
+    }
+
+    public User getUser() {
+        return user;
     }
 
     @Override
     public Response execute() {
-        return new Response(ResponseStatus.OK, CollectionManager.filterContainsName(namePart));
+        return new Response(ResponseStatus.OK, CollectionManager.filterContainsName(namePart), CommandResponse.FILTER_CONTAINS_NAME);
     }
 
     @Override

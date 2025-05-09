@@ -1,7 +1,6 @@
 package seClasses;
 
 
-import collection.IdGenerator;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -20,14 +19,13 @@ public class Dragon implements Comparable<Dragon>, Serializable {
     private long id; // Уникальный идентификатор дракона, должен быть больше 0
     private String name; // Имя дракона, не может быть null или пустым
     private Coordinates coordinates; // Координаты дракона, не могут быть null
-    private LocalDateTime creationDate = LocalDateTime.now(); // Дата создания, генерируется автоматически
+    private LocalDateTime creationDate; // Дата создания, генерируется автоматически
     private Long age; // Возраст дракона, должен быть больше 0, может быть null
     private String description; // Описание дракона, может быть null
     private Long weight; // Вес дракона, должен быть больше 0, может быть null
     private DragonType type; // Тип дракона, не может быть null
     private Person killer; // Убийца дракона, может быть null
-
-    private IdGenerator generator = new IdGenerator(); // Генератор уникальных ID
+    private String userLogin;
 
     /**
      * Конструктор для создания объекта Dragon с убийцей.
@@ -41,25 +39,30 @@ public class Dragon implements Comparable<Dragon>, Serializable {
      * @throws IllegalArgumentException Если переданы некорректные значения.
      */
     public Dragon(
+            Long id,
             String name,
             Coordinates coordinates,
+            LocalDateTime creationDate,
             Long age,
             String description,
             Long weight,
             DragonType type,
-            Person killer
+            Person killer,
+            String userLogin
     ) {
         if (name == null || name.isEmpty() || coordinates == null || (age != null && age <= 0) || weight <= 0 || type == null) {
             throw new IllegalArgumentException("Введенная информация содержит недопустимые значения.");
         } else {
-            this.id = generator.generateId();
+            this.id = id;
             this.name = name;
             this.coordinates = coordinates;
+            this.creationDate = creationDate;
             this.age = age;
             this.description = description;
             this.weight = weight;
             this.type = type;
             this.killer = killer;
+            this.userLogin = userLogin;
         }
     }
 
@@ -74,24 +77,100 @@ public class Dragon implements Comparable<Dragon>, Serializable {
      * @throws IllegalArgumentException Если переданы некорректные значения.
      */
     public Dragon(
+            long id,
             String name,
             Coordinates coordinates,
+            LocalDateTime creationDate,
             Long age,
             String description,
             Long weight,
-            DragonType type
+            DragonType type,
+            String userLogin
     ) {
         if (name == null || name.isEmpty() || coordinates == null || (age != null && age <= 0) || weight <= 0 || type == null) {
             throw new IllegalArgumentException("В исходном файле ошибка.");
         } else {
+            this.id = id;
             this.name = name;
             this.coordinates = coordinates;
+            this.creationDate = creationDate;
             this.age = age;
             this.description = description;
             this.weight = weight;
             this.type = type;
+            this.userLogin = userLogin;
         }
     }
+
+    public static String getDragonTable(Dragon dragon) {
+        String coordinates = "(null)";
+        if (dragon.getCoordinates() != null) {
+            coordinates = String.format("(%.1f, %d)",
+                    dragon.getCoordinates().getX(),
+                    dragon.getCoordinates().getY());
+        }
+
+        String killerInfo = "None";
+        if (dragon.getKiller() != null) {
+            killerInfo = String.format("%s (Passport: %s)",
+                    dragon.getKiller().getName(),
+                    dragon.getKiller().getPassportID());
+
+
+            killerInfo += String.format("\nEye: %-6s Hair: %-5s",
+                    dragon.getKiller().getEyeColor(),
+                    dragon.getKiller().getHairColor() != null ?
+                            dragon.getKiller().getHairColor() : "None");
+
+            if (dragon.getKiller().getLocation() != null) {
+                killerInfo += String.format("\nLocation: %s\n(x=%d, y=%d, z=%.1f)",
+                        dragon.getKiller().getLocation().getName() != null ?
+                                dragon.getKiller().getLocation().getName() : "Unnamed",
+                        dragon.getKiller().getLocation().getX(),
+                        dragon.getKiller().getLocation().getY(),
+                        dragon.getKiller().getLocation().getZ());
+            } else {
+                killerInfo += "\nLocation: Unknown";
+            }
+        }
+
+        StringBuilder table = new StringBuilder();
+
+        table.append("+-----------------+-----------------------------------------------------+\n");
+
+        table.append(String.format("| %-15s | %-51s |\n", "Dragon ID", dragon.getId()));
+        table.append("+-----------------+-----------------------------------------------------+\n");
+
+        table.append(String.format("| %-15s | %-51s |\n", "Name",
+                dragon.getName() != null ? dragon.getName() : "Unnamed"));
+        table.append(String.format("| %-15s | %-51s |\n", "Coordinates", coordinates));
+        table.append(String.format("| %-15s | %-51s |\n", "Created",
+                dragon.getCreationDate() != null ?
+                        dragon.getCreationDate().toString().replace("T", " ") : "Unknown"));
+        table.append(String.format("| %-15s | %-51s |\n", "Age",
+                dragon.getAge() != null ? dragon.getAge() : "Unknown"));
+        table.append(String.format("| %-15s | %-51s |\n", "Description",
+                dragon.getDescription() != null && !dragon.getDescription().isEmpty() ?
+                        dragon.getDescription() : "-"));
+        table.append(String.format("| %-15s | %-51s |\n", "Weight",
+                dragon.getWeight() != null ? dragon.getWeight() : "Unknown"));
+        table.append(String.format("| %-15s | %-51s |\n", "Type",
+                dragon.getType() != null ? dragon.getType() : "Unknown"));
+
+        String[] killerLines = killerInfo.split("\n");
+        table.append(String.format("| %-15s | %-51s |\n", "Killer", killerLines[0]));
+        for (int i = 1; i < killerLines.length; i++) {
+            table.append(String.format("| %-15s | %-51s |\n", "", killerLines[i]));
+        }
+
+        table.append(String.format("| %-15s | %-51s |\n", "Owner",
+                dragon.getUserLogin() != null ? dragon.getUserLogin() : "Unknown"));
+
+        table.append("+-----------------+-----------------------------------------------------+");
+
+        return table.toString();
+    }
+
 
     /**
      * Возвращает идентификатор дракона.
@@ -237,6 +316,14 @@ public class Dragon implements Comparable<Dragon>, Serializable {
         this.killer = killer;
     }
 
+    public String getUserLogin() {
+        return userLogin;
+    }
+
+    public void setUserLogin(String userLogin) {
+        this.userLogin = userLogin;
+    }
+
     /**
      * Сравнивает текущий объект с другим объектом на равенство.
      * @param object Объект для сравнения.
@@ -283,6 +370,7 @@ public class Dragon implements Comparable<Dragon>, Serializable {
                 ", weight=" + weight +
                 ", type=" + type +
                 ", killer=" + killer +
+                ", user=" + userLogin +
                 '}';
     }
 

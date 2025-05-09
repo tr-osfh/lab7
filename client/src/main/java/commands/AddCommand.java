@@ -2,6 +2,7 @@ package commands;
 
 
 import connection.Response;
+import connection.User;
 import seClasses.Dragon;
 
 import java.io.Serial;
@@ -16,8 +17,14 @@ public class AddCommand implements Command, Serializable {
     private static final long serialVersionUID  = 1L;
 
     private Dragon dragon;
-    public AddCommand(Dragon dragon){
+    private User user;
+    public AddCommand(Dragon dragon, User user){
         this.dragon = dragon;
+        this.user = user;
+    }
+
+    public User getUser() {
+        return user;
     }
 
     @Override
@@ -28,6 +35,11 @@ public class AddCommand implements Command, Serializable {
     @Override
     public String getDescription() {
         return "add {element} : добавить новый элемент в коллекцию";
+    }
+
+    @Override
+    public String getCommandName() {
+        return "add";
     }
 
 }

@@ -1,6 +1,7 @@
 package commands;
 
 import connection.Response;
+import connection.User;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -17,7 +18,9 @@ public class InfoCommand implements Command, Serializable {
     @Serial
     private static final long serialVersionUID  = 11L;
 
-    public InfoCommand() {
+    private User user;
+    public InfoCommand(User user) {
+        this.user = user;
 
     }
 
@@ -29,5 +32,10 @@ public class InfoCommand implements Command, Serializable {
     @Override
     public String getDescription() {
         return "info : вывести в стандартный поток вывода информацию о коллекции (тип, дата инициализации, количество элементов и т.д.)";
+    }
+
+    @Override
+    public String getCommandName() {
+        return "info";
     }
 }

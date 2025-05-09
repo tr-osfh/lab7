@@ -11,4 +11,6 @@ public class ConsoleManager {
         Scanner scanner = new Scanner(System.in);
         return scanner.nextLine();
     }
+
+
 }

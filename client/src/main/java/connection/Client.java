@@ -28,6 +28,7 @@ public class Client {
     private boolean isWaitingForResponse = false;
     private boolean running = true;
     private boolean connectionProblem = true;
+    private User user;
 
     public Client(String serverAddress, int port) {
         this.serverAddress = serverAddress;
@@ -69,6 +70,7 @@ public class Client {
 
                     if (readyChannels > 0) {
                         Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
+
                         while (keys.hasNext()) {
                             SelectionKey key = keys.next();
                             keys.remove();
@@ -100,7 +102,12 @@ public class Client {
     }
 
     private void noConnectionHandler() throws IOException {
-        closeResources();
+        pendingCommand = null;
+        connectionProblem = false;
+        isWaitingForResponse = false;
+
+        SelectionKey key = socketChannel.keyFor(selector);
+
         try {
             System.out.print("Ошибка подключения. Повторная попытка");
             Thread.sleep(1000);
@@ -141,8 +148,10 @@ public class Client {
         if (channel.isConnectionPending()) {
             channel.finishConnect();
         }
-        channel.register(selector, SelectionKey.OP_READ);
+        channel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
         cr.printLine("Подключено к серверу. \n");
+
+        cr.printLine("Для использования приложения необходимо зарегестрироваться. Для этого введите команду registration: \n");
         cr.printLine("Введите команду: \n");
         isConnected = true;
         connectionProblem = false;
@@ -150,7 +159,7 @@ public class Client {
 
     private void read(SelectionKey key) throws IOException, ClassNotFoundException {
         SocketChannel channel = (SocketChannel) key.channel();
-        ByteBuffer buffer = ByteBuffer.allocate(4096);
+        ByteBuffer buffer = ByteBuffer.allocate(8192 * 8192);
         int bytesRead = channel.read(buffer);
 
         if (bytesRead > 0) {
@@ -158,6 +167,11 @@ public class Client {
             byte[] data = new byte[buffer.limit()];
             buffer.get(data);
             Response response = CommandSerializer.deserialize(data);
+            if (response.getType() == CommandResponse.AUTHORIZATION || response.getType() == CommandResponse.REGISTRATION){
+                if (response.getUser() != null){
+                    this.user = response.getUser();
+                }
+            }
             System.out.println(response.getResponse());
             key.interestOps(SelectionKey.OP_WRITE);
             isWaitingForResponse = false;
@@ -186,16 +200,17 @@ public class Client {
         if (input == null || input.length == 0) return null;
 
         CommandsList type = CommandDecoder.getCommandType(input[0]);
+
         if (type == CommandsList.EXIT) {
             closeResources();
             running = false;
             return null;
-        } else if (type == CommandsList.EXECUTE_SCRIPT && input.length > 1) {
-            ExecuteScript script = new ExecuteScript(new File(input[1]));
+        } else if (type == CommandsList.EXECUTE_SCRIPT && input.length > 1 && user != null) {
+            ExecuteScript script = new ExecuteScript(new File(input[1]), user);
             script.readScript();
-            return new ExecuteScriptCommand(script.getCommandQueue());
+            return new ExecuteScriptCommand(script.getCommandQueue(), user);
         }
-        return CommandFactory.createCommand(type, input);
+        return CommandFactory.createCommand(type, input, user);
     }
 
     private void closeResources() {

@@ -14,31 +14,11 @@ import java.util.Arrays;
 public class Validator {
 
     private ArrayList<Long> ids = new ArrayList<>();
-    private IdGenerator idGen = new IdGenerator();
     private ArrayList<DragonType> possibleDragonTypes = new ArrayList<>(Arrays.asList(
             DragonType.AIR,
             DragonType.UNDERGROUND,
             DragonType.WATER
     ));
-
-    /**
-     * Проверяет уникальность ID дракона.
-     * Если ID уже существует, генерирует новый уникальный ID.
-     * @param dragon Объект Dragon, который нужно проверить.
-     * @return Объект Dragon с уникальным ID.
-     */
-    public Dragon getValidatedId(Dragon dragon) {
-        Long id = dragon.getId();
-        if (ids.contains(id)) {
-            Long tmpId = idGen.generateId();
-            dragon.setId(tmpId);
-            ids.add(tmpId);
-            return dragon;
-        } else {
-            ids.add(dragon.getId());
-            return dragon;
-        }
-    }
 
     /**
      * Проверяет корректность всех полей объекта Dragon.
@@ -47,7 +27,6 @@ public class Validator {
      */
     public Dragon getValid(Dragon dragon) {
         if (
-                dragon.getId() <= 0 ||
                         dragon.getName().isBlank() ||
                         dragon.getName().isEmpty() ||
                         dragon.getName() == null ||

@@ -2,8 +2,10 @@ package commands;
 
 
 import collection.CollectionManager;
+import connection.CommandResponse;
 import connection.Response;
 import connection.ResponseStatus;
+import connection.User;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -15,12 +17,19 @@ import java.io.Serializable;
 public class ShowCommand implements Command, Serializable {
     @Serial
     private final static long serialVersionUID  = 14L;
-    public ShowCommand() {
+
+    private User user;
+    public ShowCommand(User user) {
+        this.user = user;
+    }
+
+    public User getUser() {
+        return user;
     }
 
     @Override
     public Response execute() {
-        return new Response(ResponseStatus.OK, CollectionManager.show());
+        return new Response(ResponseStatus.OK, CollectionManager.show(), CommandResponse.SHOW);
     }
 
     @Override

@@ -2,6 +2,7 @@ package commands;
 
 
 import connection.Response;
+import connection.User;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -15,7 +16,9 @@ public class ShowCommand implements Command, Serializable {
     @Serial
     private static final long serialVersionUID  = 14L;
 
-    public ShowCommand() {
+    private User user;
+    public ShowCommand(User user) {
+        this.user = user;
     }
 
     @Override
@@ -26,5 +29,9 @@ public class ShowCommand implements Command, Serializable {
     @Override
     public String getDescription() {
         return "show : вывести в стандартный поток вывода все элементы коллекции в строковом представлении";
+    }
+    @Override
+    public String getCommandName() {
+        return "show";
     }
 }

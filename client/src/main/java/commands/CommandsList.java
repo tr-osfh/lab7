@@ -16,6 +16,8 @@ public enum CommandsList {
     SUM_OF_AGE(SumOfAgeCommand.class, "sum_of_age : вывести сумму значений поля age для всех элементов коллекции"),
     FILTER_CONTAINS_NAME(FilterContainsNameCommand.class, "filter_contains_name name : вывести элементы, значение поля name которых содержит заданную подстроку"),
     FILTER_STARTS_WITH_NAME(FilterStartsWithNameCommand.class, "filter_starts_with_name name : вывести элементы, значение поля name которых начинается с заданной подстроки"),
+    REGISTRATION(RegistrationCommand.class, "registration: зарегестрироваться в приложении"),
+    AUTHORIZATION(AuthorizationCommand.class, "authorization: войти в существующий аккаунт"),
     DEFAULT(DefaultCommand.class, "");
 
     CommandsList(Class<? extends Command> CommandClass, String description) {

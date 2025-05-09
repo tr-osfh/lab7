@@ -372,6 +372,58 @@ public class ConsoleReader implements Reader{
         }
     }
 
+    public String readLogin(){
+        String login;
+        for(;;){
+            rc.printLine("Введите логин: ");
+            login = rc.readLine();
+            if (login.isEmpty() || login.isBlank()){
+                System.out.println("Строка не может быть пустой!");
+            } else {
+                return login;
+            }
+        }
+    }
+
+    public String readPasswordAuthorization(){
+        String password;
+        for(;;){
+            rc.printLine("Пароль пароль: ");
+            password = rc.readLine();
+            if (password.isEmpty() || password.isBlank()){
+                System.out.println("Строка не может быть пустой!");
+            }
+            return password;
+
+        }
+    }
+
+    public String readPasswordRegistration(){
+        String password1;
+        String password2;
+        for(;;){
+            rc.printLine("Пароль пароль: ");
+            password1 = rc.readLine();
+            if (password1.isEmpty() || password1.isBlank()){
+                System.out.println("Строка не может быть пустой!");
+                continue;
+            }
+            rc.printLine("Пароль пароль повторно: ");
+            password2 = rc.readLine();
+            if (password2.isEmpty() || password2.isBlank()){
+                System.out.println("Строка не может быть пустой!");
+                continue;
+            }
+            if (password1.equals(password2)){
+                return password1;
+            } else {
+                System.out.println("Пароли не совпадают!");
+            }
+
+        }
+    }
+
+
     /**
      * Читает команду, введенную пользователем.
      * @return Массив строк, содержащий команду и ее аргументы.

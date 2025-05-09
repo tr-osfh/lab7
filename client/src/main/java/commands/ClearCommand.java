@@ -1,6 +1,7 @@
 package commands;
 
 import connection.Response;
+import connection.User;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -14,7 +15,9 @@ public class ClearCommand implements Command, Serializable {
     @Serial
     private static final long serialVersionUID  = 3L;
 
-    public ClearCommand(){
+    private User user;
+    public ClearCommand(User user){
+        this.user = user;
     }
 
     @Override
@@ -25,5 +28,9 @@ public class ClearCommand implements Command, Serializable {
     @Override
     public String getDescription() {
         return "clear : очистить коллекцию";
+    }
+    @Override
+    public String getCommandName() {
+        return "clear";
     }
 }
