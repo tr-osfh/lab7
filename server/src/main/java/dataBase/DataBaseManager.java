@@ -114,7 +114,12 @@ public class DataBaseManager {
             }
             update.setString(7, dragon.getType().toString());
             if (dragon.getKiller() != null){
-                update.setInt(8, addKillerToDragon(dragon, user));
+                Integer killerId = addKillerToDragon(dragon, user);
+                if (killerId != null){
+                    update.setInt(8, killerId);
+                } else {
+                    return false;
+                }
             } else {
                 update.setNull(8, Types.INTEGER);
             }
@@ -124,7 +129,7 @@ public class DataBaseManager {
             return updatedRows > 0;
 
         } catch (SQLException e) {
-            ServerLogger.getLogger().warning("Ошибка добавления данных. ");
+            ServerLogger.getLogger().warning("Ошибка обновления данных данных. ");
         }
         return false;
     }
@@ -154,8 +159,14 @@ public class DataBaseManager {
                 add.setLong(6, dragon.getWeight());
             }
             add.setString(7, dragon.getType().toString());
+
             if (dragon.getKiller() != null){
-                add.setInt(8, addKillerToDragon(dragon, user));
+                Integer killerId = addKillerToDragon(dragon, user);
+                if (killerId != null){
+                    add.setInt(8, killerId);
+                } else {
+                    return null;
+                }
             } else {
                 add.setNull(8, Types.INTEGER);
             }
@@ -167,8 +178,7 @@ public class DataBaseManager {
             }
 
         } catch (SQLException e) {
-            ServerLogger.getLogger().warning("Ошибка добавления данных. ");
-            e.printStackTrace();
+            ServerLogger.getLogger().warning("Ошибка добавления данных о драконе. ");
         }
         return null;
     }
@@ -201,7 +211,7 @@ public class DataBaseManager {
                 }
             }
         } catch (SQLException e) {
-            ServerLogger.getLogger().warning("Ошибка добавления данных: " + e.getMessage());
+            ServerLogger.getLogger().warning("Ошибка добавления данных об убийце.");
         }
         return null;
     }
@@ -241,5 +251,18 @@ public class DataBaseManager {
             ServerLogger.getLogger().warning("Ошибка выборки данных. ");
         }
         return null;
+    }
+
+    public boolean removeKiller(String id){
+        try{
+            Connection connection = connect();
+            PreparedStatement rmKiller = connection.prepareStatement(qm.deleteKiller);
+            rmKiller.setString(1, id);
+            int deletedRows = rmKiller.executeUpdate();
+            return deletedRows > 0;
+        } catch (SQLException e) {
+            ServerLogger.getLogger().warning("Ошибка выборки данных. ");
+        }
+        return false;
     }
 }

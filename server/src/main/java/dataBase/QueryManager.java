@@ -6,6 +6,8 @@ public class QueryManager {
 
     public String addUser = "INSERT INTO users (login, password, salt) VALUES (?, ?, ?);";
 
+    public String deleteKiller = "DELETE FROM killers WHERE passportID = ?;";
+
     public String addDragon = "INSERT INTO dragons (\n" +
             "    name,\n" +
             "    coordinatex,\n" +
