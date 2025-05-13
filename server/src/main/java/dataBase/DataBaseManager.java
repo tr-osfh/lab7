@@ -113,6 +113,12 @@ public class DataBaseManager {
                 update.setLong(6, dragon.getWeight());
             }
             update.setString(7, dragon.getType().toString());
+
+            String curKiller = findKiller(id);
+            if (curKiller != null){
+                removeKiller(curKiller);
+            }
+
             if (dragon.getKiller() != null){
                 Integer killerId = addKillerToDragon(dragon, user);
                 if (killerId != null){
@@ -160,7 +166,9 @@ public class DataBaseManager {
             }
             add.setString(7, dragon.getType().toString());
 
-            if (dragon.getKiller() != null){
+
+
+            if (dragon.getKiller() != null){ //todo добавить удаление старого киллера
                 Integer killerId = addKillerToDragon(dragon, user);
                 if (killerId != null){
                     add.setInt(8, killerId);
@@ -247,6 +255,24 @@ public class DataBaseManager {
             Connection connection = connect();
             PreparedStatement selectDragons = connection.prepareStatement(qm.selectDragons);
             return parser.ParseDbToDragons(selectDragons.executeQuery());
+        } catch (SQLException e) {
+            ServerLogger.getLogger().warning("Ошибка выборки данных. ");
+        }
+        return null;
+    }
+
+    public String findKiller(long id) {
+        try {
+            Connection connection = connect();
+            PreparedStatement findKiller = connection.prepareStatement(qm.findKiller);
+            findKiller.setLong(1, id);
+            ResultSet resultSet = findKiller.executeQuery();
+
+            if (resultSet.next()) {
+                return resultSet.getString(1);
+            } else {
+                return null;
+            }
         } catch (SQLException e) {
             ServerLogger.getLogger().warning("Ошибка выборки данных. ");
         }

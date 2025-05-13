@@ -6,6 +6,11 @@ public class QueryManager {
 
     public String addUser = "INSERT INTO users (login, password, salt) VALUES (?, ?, ?);";
 
+    public String findKiller = "SELECT k.passportid " +
+            "FROM dragons d " +
+            "LEFT JOIN killers k ON d.killer = k.id " +
+            "WHERE d.id = ?";
+
     public String deleteKiller = "DELETE FROM killers WHERE passportID = ?;";
 
     public String addDragon = "INSERT INTO dragons (\n" +
