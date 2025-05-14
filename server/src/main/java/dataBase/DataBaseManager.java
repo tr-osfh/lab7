@@ -20,10 +20,10 @@ public class DataBaseManager {
     public static Connection connect() throws SQLException {
         try{
             Class.forName("org.postgresql.Driver");
-
-            return DriverManager.getConnection("jdbc:postgresql://db:5432/studs", fileReader.getPassword()[0], fileReader.getPassword()[1]);
+            System.out.println(fileReader.getUser());
+            System.out.println(fileReader.getPassword());
+            return DriverManager.getConnection("jdbc:postgresql://db:5432/studs", fileReader.getUser(), fileReader.getPassword());
         } catch (SQLException e) {
-            System.out.println("сикуль");
             throw new SQLException(e);
         }
         catch (ClassNotFoundException e) {
