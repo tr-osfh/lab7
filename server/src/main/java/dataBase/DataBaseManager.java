@@ -5,6 +5,7 @@ import connection.Response;
 import connection.ResponseStatus;
 import connection.User;
 import file.Parser;
+import file.fileReader;
 import seClasses.Dragon;
 import seClasses.Location;
 import seClasses.Person;
@@ -19,7 +20,8 @@ public class DataBaseManager {
     public static Connection connect() throws SQLException {
         try{
             Class.forName("org.postgresql.Driver");
-            return DriverManager.getConnection("jdbc:postgresql://db:5432/studs", "s466342", "FOsgb1KavOKMIbTp");
+
+            return DriverManager.getConnection("jdbc:postgresql://db:5432/studs", fileReader.getPassword()[0], fileReader.getPassword()[1]);
         } catch (SQLException e) {
             System.out.println("сикуль");
             throw new SQLException(e);
@@ -31,9 +33,11 @@ public class DataBaseManager {
     }
 
     public Response registration(User user){
-        try {
-            Connection connection = connect();
-            PreparedStatement findUser = connection.prepareStatement(qm.findUser);
+        try (
+                Connection connection = connect();
+                PreparedStatement findUser = connection.prepareStatement(qm.findUser)
+                ){
+
             findUser.setString(1, user.getLogin());
             ResultSet resultSet = findUser.executeQuery();
             if (!resultSet.next()){
@@ -54,9 +58,9 @@ public class DataBaseManager {
     }
 
     public Response authorisation(User user) {
-        try {
-            Connection connection = connect();
-            PreparedStatement findUser = connection.prepareStatement(qm.findUser);
+        try (            Connection connection = connect();
+                         PreparedStatement findUser = connection.prepareStatement(qm.findUser)){
+
             findUser.setString(1, user.getLogin());
             ResultSet resultSet = findUser.executeQuery();
             if (resultSet.next()) {
@@ -69,15 +73,16 @@ public class DataBaseManager {
             }
         } catch (SQLException | NullPointerException e) {
             ServerLogger.getLogger().warning("Ошибка подключения к базе данных. ");
-            e.printStackTrace();
             return new Response(ResponseStatus.ERROR, "Ошибка подключения к базе данных, попробуйте еще раз.", CommandResponse.AUTHORIZATION);
         }
     }
 
     public boolean removeDragon(long id, User user){
-        try{
-            Connection connection = connect();
-            PreparedStatement remove = connection.prepareStatement(qm.removeDragon);
+        try (
+                Connection connection = connect();
+                PreparedStatement remove = connection.prepareStatement(qm.removeDragon);
+                ){
+
             remove.setLong(1, id);
             remove.setString(2, user.getLogin());
             int rowsDeleted = remove.executeUpdate();
@@ -89,9 +94,11 @@ public class DataBaseManager {
     }
 
     public boolean updateDragon(Long id, Dragon dragon, User user){
-        try {
-            Connection connection = connect();
-            PreparedStatement update = connection.prepareStatement(qm.updateDragon);
+        try (
+                Connection connection = connect();
+                PreparedStatement update = connection.prepareStatement(qm.updateDragon)
+                ){
+
 
             update.setString(1, dragon.getName());
             update.setFloat(2, dragon.getCoordinates().getX());
@@ -142,9 +149,11 @@ public class DataBaseManager {
 
 
     public Integer addDragon(Dragon dragon, User user){
-        try {
-            Connection connection = connect();
-            PreparedStatement add = connection.prepareStatement(qm.addDragon);
+        try (
+                Connection connection = connect();
+                PreparedStatement add = connection.prepareStatement(qm.addDragon);
+                ){
+
 
             add.setString(1, dragon.getName());
             add.setFloat(2, dragon.getCoordinates().getX());
@@ -192,9 +201,9 @@ public class DataBaseManager {
     }
 
     public Integer addKillerToDragon(Dragon dragon, User user) {
-        try {
-            Connection connection = connect();
-            PreparedStatement addKiller = connection.prepareStatement(qm.addKiller);
+        try (Connection connection = connect();
+                         PreparedStatement addKiller = connection.prepareStatement(qm.addKiller)){
+
 
             Person killer = dragon.getKiller();
             Location location = killer.getLocation();
@@ -225,9 +234,11 @@ public class DataBaseManager {
     }
 
     public boolean clear(User user){
-        try{
-            Connection connection = connect();
-            PreparedStatement clear = connection.prepareStatement(qm.clear);
+        try(
+                Connection connection = connect();
+                PreparedStatement clear = connection.prepareStatement(qm.clear);
+                ){
+
             clear.setString(1, user.getLogin());
             int deletedRows = clear.executeUpdate();
             return deletedRows > 0;
@@ -238,9 +249,9 @@ public class DataBaseManager {
     }
 
     public boolean removeLower(Dragon dragon, User user){
-        try{
-            Connection connection = connect();
-            PreparedStatement removeLower = connection.prepareStatement(qm.removeLower);
+        try (Connection connection = connect();
+             PreparedStatement removeLower = connection.prepareStatement(qm.removeLower)){
+
             removeLower.setFloat(1, dragon.getCoordinates().getX());
             removeLower.setString(2, user.getLogin());
             int deletedRows = removeLower.executeUpdate();
@@ -251,9 +262,10 @@ public class DataBaseManager {
         return false;
     }
     public PriorityBlockingQueue<Dragon> selectDragons(){
-        try{
+        try(
             Connection connection = connect();
-            PreparedStatement selectDragons = connection.prepareStatement(qm.selectDragons);
+            PreparedStatement selectDragons = connection.prepareStatement(qm.selectDragons)
+        ) {
             return parser.ParseDbToDragons(selectDragons.executeQuery());
         } catch (SQLException e) {
             ServerLogger.getLogger().warning("Ошибка выборки данных. ");
@@ -262,27 +274,27 @@ public class DataBaseManager {
     }
 
     public String findKiller(long id) {
-        try {
-            Connection connection = connect();
-            PreparedStatement findKiller = connection.prepareStatement(qm.findKiller);
-            findKiller.setLong(1, id);
-            ResultSet resultSet = findKiller.executeQuery();
+        String query = qm.findKiller;
+        try (Connection connection = connect();
+             PreparedStatement findKiller = connection.prepareStatement(query)) {
 
-            if (resultSet.next()) {
-                return resultSet.getString(1);
-            } else {
+            findKiller.setLong(1, id);
+
+            try (ResultSet resultSet = findKiller.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getString(1);
+                }
                 return null;
             }
         } catch (SQLException e) {
             ServerLogger.getLogger().warning("Ошибка выборки данных. ");
+            return null;
         }
-        return null;
     }
 
     public boolean removeKiller(String id){
-        try{
-            Connection connection = connect();
-            PreparedStatement rmKiller = connection.prepareStatement(qm.deleteKiller);
+        try(Connection connection = connect();
+                PreparedStatement rmKiller = connection.prepareStatement(qm.deleteKiller);){
             rmKiller.setString(1, id);
             int deletedRows = rmKiller.executeUpdate();
             return deletedRows > 0;
@@ -291,4 +303,6 @@ public class DataBaseManager {
         }
         return false;
     }
+
+
 }
