@@ -20,14 +20,11 @@ public class DataBaseManager {
     public static Connection connect() throws SQLException {
         try{
             Class.forName("org.postgresql.Driver");
-            System.out.println(fileReader.getUser());
-            System.out.println(fileReader.getPassword());
             return DriverManager.getConnection("jdbc:postgresql://db:5432/studs", fileReader.getUser(), fileReader.getPassword());
         } catch (SQLException e) {
             throw new SQLException(e);
         }
         catch (ClassNotFoundException e) {
-            System.out.println("класс");
             throw new SQLException("Драйвер PostgreSQL не найден", e);
         }
     }

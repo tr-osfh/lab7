@@ -1,14 +1,10 @@
 package connection;
 
-import collection.CollectionManager;
 import collection.ServerLogger;
-import commands.Command;
-import commands.CommandSerializer;
 import console.ConsoleManager;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -19,13 +15,13 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 
 public class Server {
+    private final ResponseSender responseSender = new ResponseSender();
     private final ConsoleManager consoleManager;
     private final int port;
     private volatile boolean running = true;
     private ServerSocket serverSocket;
 
     private final ForkJoinPool readPool = new ForkJoinPool();
-    private final ExecutorService responsePool = Executors.newCachedThreadPool();
 
     public Server(int port, ConsoleManager consoleManager) {
         this.port = port;
@@ -62,31 +58,14 @@ public class Server {
             readPool.execute(() -> {
                 try (
                         InputStream input = clientSocket.getInputStream();
-                        OutputStream output = clientSocket.getOutputStream()
                 ) {
                     byte[] buffer = new byte[8196 * 8196];
                     int bytesRead;
                     while ((bytesRead = input.read(buffer)) != -1) {
                         final byte[] requestData = Arrays.copyOf(buffer, bytesRead);
 
-                        new Thread(() -> {
-                            try {
-                                Command command = CommandSerializer.deserialize(requestData);
-                                ServerLogger.getLogger().info("Получена команда: " + command.getCommandName() + "\nОт пользователя: " + command.getUser());
-                                Response response = command.execute();
-
-                                responsePool.execute(() -> {
-                                    try {
-                                        output.write(CommandSerializer.serialize(response));
-                                        output.flush();
-                                    } catch (IOException e) {
-                                        ServerLogger.getLogger().warning("Ошибка отправки ответа");
-                                    }
-                                });
-                            } catch (ClassNotFoundException | IOException e) {
-                                ServerLogger.getLogger().warning("Ошибка обработки команды");
-                            }
-                        }).start();
+                        ProcessCommand processCommand = new ProcessCommand(requestData, clientSocket, responseSender);
+                        new Thread(processCommand).start();
 
                         Arrays.fill(buffer, (byte) 0);
                     }
@@ -135,7 +114,7 @@ public class Server {
         try {
             running = false;
             readPool.shutdownNow();
-            responsePool.shutdownNow();
+            responseSender.shutdown();
             if (serverSocket != null && !serverSocket.isClosed()) {
                 serverSocket.close();
                 ServerLogger.getLogger().info("Сервер остановлен");
