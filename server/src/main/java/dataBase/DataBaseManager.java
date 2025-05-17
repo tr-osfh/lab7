@@ -22,10 +22,12 @@ public class DataBaseManager {
             Class.forName("org.postgresql.Driver");
             return DriverManager.getConnection("jdbc:postgresql://db:5432/studs", fileReader.getUser(), fileReader.getPassword());
         } catch (SQLException e) {
-            throw new SQLException(e);
+            ServerLogger.getLogger().warning("Ошибка подключения к базе данных.");
+            return null;
         }
         catch (ClassNotFoundException e) {
-            throw new SQLException("Драйвер PostgreSQL не найден", e);
+            ServerLogger.getLogger().warning("Драйвер для psql не найден.");
+            return null;
         }
     }
 
@@ -49,7 +51,7 @@ public class DataBaseManager {
                 return new Response(ResponseStatus.OK, "Пользователь с логином " + user.getLogin() + " уже существует.", CommandResponse.REGISTRATION);
             }
         } catch (SQLException | NullPointerException e) {
-            ServerLogger.getLogger().warning("Ошибка подключения к базе данных. " + e.getMessage());
+            ServerLogger.getLogger().warning("Ошибка подключения к базе данных. ");
             return new Response(ResponseStatus.ERROR, "Ошибка подключения к базе данных, попробуйте еще раз.", CommandResponse.REGISTRATION);
         }
     }
@@ -296,7 +298,7 @@ public class DataBaseManager {
             int deletedRows = rmKiller.executeUpdate();
             return deletedRows > 0;
         } catch (SQLException e) {
-            ServerLogger.getLogger().warning("Ошибка выборки данных. ");
+            ServerLogger.getLogger().warning("Ошибка удаления данных. ");
         }
         return false;
     }

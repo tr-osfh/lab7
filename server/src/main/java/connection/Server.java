@@ -9,8 +9,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.Arrays;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 
@@ -34,15 +32,13 @@ public class Server {
             serverSocket.setSoTimeout(100);
             ServerLogger.getLogger().info("Сервер запущен на порту " + port);
 
-            readPool.execute(() -> {
-                while (running) {
-                    handleClientConnection();
-                    checkConsoleInput();
-                }
-                System.exit(0);
-            });
+            while (running) {
+                handleClientConnection();
+                checkConsoleInput();
+            }
 
-            readPool.awaitQuiescence(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+            System.exit(0);
+
         } catch (IOException e) {
             ServerLogger.getLogger().severe("Ошибка в работе сервера");
         } finally {
